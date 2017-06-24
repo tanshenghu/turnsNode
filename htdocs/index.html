@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>node server</title>
+    <script src="http://a.alipayobjects.com/??seajs/seajs/2.2.0/sea.js,jquery/jquery/1.8.2/jquery.js"></script>
+</head>
+<body>
+    <% include("/include/header.html"); %>
+    page
+    <img src="./img/demo.png" height="150">
+    <% include("/include/footer.html"); %>
+    <form action="/node_demo.json" method="post" enctype="multipart/form-data" target="ifm"><input type="text" name="username" value="tsh"><input type="file" name="uploadfile"><input type="submit" value="上传"></form><iframe name="ifm" id="ifm" width="120" height="70"></iframe>
+    <br>
+    <textarea id="text"></textarea>
+    <br>
+    <button id="a">get调自己接口</button>
+    <button id="aa">post调自己接口</button>
+    <hr>
+    <button id="b">get调别人接口</button>
+    <button id="bb">post调别人接口</button>
+    <script>
+        jQuery('button').on('click', function(){
+            var $this = jQuery( this ),
+                type  = $this.attr('id').indexOf('aa')==0||$this.attr('id').indexOf('bb')==0 ? 'post' : 'get',
+                url   = $this.attr('id').indexOf('a')==0 ? '/getlist.json' : '/node_demo.json';
+            jQuery[type](url, {username:'TanShenghu',sex:'男',content:jQuery('#text').val()}, function( res ){
+                console.log( res )
+            })
+        })
+    </script>
+</body>
+</html>
