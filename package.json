@@ -1,12 +1,16 @@
 {
-  "name": "turnsNode",
-  "version": "1.0.0",
+  "name": "turns-node",
+  "version": "1.0.1",
   "description": "HTML development node service and support cross domain",
   "keywords": [
     "html",
     "node",
     "data request"
   ],
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/tanshenghu/turnsNode.git"
+  },
   "devDependencies": {},
   "scripts": {},
   "files": [
