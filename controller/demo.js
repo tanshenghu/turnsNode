@@ -11,7 +11,8 @@ module.exports = function( app ){
         
         var result = {
             type: '您刚才用了GET请求接口',
-            success:true,content:[
+            success:true,
+            content:[
                 {username:"张三",sex:"男",phone:"12345"},
                 {username:"李四",sex:"男",phone:"24680"},
                 {username:"王五",sex:"男",phone:"13579"}

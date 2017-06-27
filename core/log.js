@@ -8,6 +8,10 @@ getDate = function( all ){
 },
 dir     = './logs/';
 
+if( !fs.existsSync( dir ) ){
+    fs.mkdir( dir );
+}
+
 module.exports = {
     log: function( err ){
         var error = Array.isArray(err)||({}.toString.call(err)==='[object Object]') ? JSON.stringify( err ) : err.toString();

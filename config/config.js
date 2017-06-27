@@ -4,7 +4,7 @@
  */
 var fs = require( 'fs' ),
 config = {
-    port          :   '8080',                  // 服务端口号
+    port          :   '8282',                  // 服务端口号
     urlExtName    :   '.html',                 // url中访问的扩展名,默认.html,当然也可以改成.jsp,.php,.asp,.aspx,.do等
     VMExtName     :   '.html',                 // view model 视图文件扩展名,其它就是我们html静态文件的扩展名,默认.html
     htdocs        :   './htdocs/',             // 静态资源存放位置,默认dtdocs不建议修改,默认为好

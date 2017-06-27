@@ -14,4 +14,4 @@ app    = http.createServer()
 
 require( './core/__main__' )( app );
 
-console.log( '\033[32mhttp服务 ---> http://localhost:'+ config.port +', 已启动成功^_^\033[0m' );
+console.log( '\033[32mhttp服务 ---> http://127.0.0.1:'+ config.port +', 已启动成功^_^\033[0m' );

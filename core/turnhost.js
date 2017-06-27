@@ -35,27 +35,29 @@ var take = function( options ){
         outCout  = 0,   // 输出次数
         params   = Buffer.isBuffer( options.params ) || typeof options.params==='string' ? options.params : querystring.stringify( options.params ),
         _path    = options.pathname + ( options.type.toUpperCase()!=='POST'&&params!=='' ? options.pathname.indexOf('?')==-1 ? '?' + params : '&' + params : '' ),
-        _Host    = url.parse( Host ).hostname.replace('www.', '');
+        _Host    = url.parse( Host ).hostname;
     
     // 如果path中已经存在域名   那就用path中的域名, 也就是说path中的域名优先于配置文件中的转发域名
     if( _path.indexOf('http')===0 ){
         var ouri = url.parse( _path );
-        _Host = ouri.hostname.replace('www.', '');
+        _Host = ouri.hostname;
         _path = ouri.path;
     }
     
-    var _Headers = Object.assign( {"Proxy-Author":"TanShenghu"}, options.headers, {host: _Host+':'+Port} );
+    var _Headers = Object.assign( {"proxy-author":"TanShenghu"}, options.headers, {host: _Host+':'+Port} );
     
     delete _Headers['accept-encoding'];
     delete _Headers['content-length'];
-    var requester = _Host.indexOf('https')===0 ? https : http;
-    var req = requester.request({
+    var requester   = _Host.indexOf('https')===0 ? https : http,
+        turnOptions = {
         host: _Host,
         port: Port,
         method: options.type,
         path: _path,
         headers: _Headers,
-    }, function( res ){
+    };
+    console.info( '数据转发参数: ' + JSON.stringify( Object.assign( turnOptions, {params: params} ) ) );
+    var req = requester.request(turnOptions, function( res ){
         clearTimeout( Tid );
         res.setEncoding('utf8');
         res.on('data', function( chunk ){
@@ -91,7 +93,7 @@ var take = function( options ){
 module.exports = {
     
     // getData 与 get唯一的区别就是del没有报文，而get是可以设置报文的建义还是用get
-    getData: function( path, params, callback ){
+    getData: function( _path, params, callback ){
         
         if( typeof params==='function' ){
             callback = params;
@@ -107,9 +109,10 @@ module.exports = {
         
         if( Host.search(/http(?:s)?:\/\//)===0 ){
             
-            var _url = Host+(Port?':'+Port:'')+path;
+            var _url = _path.indexOf('http')==0 ? _path : Host+(Port?':'+Port:'')+_path;
             _url += JSON.stringify(params)==='{}' ? '' : ( url.parse( _url ).search ? '&' : '?' ) + querystring.stringify( params );
-            var requester = Host.indexOf('https')===0 ? https : http;
+            var requester = Host.indexOf('https')===0||_url.indexOf('https')===0 ? https : http;
+            console.info( '数据转发参数: ' + _url );
             requester.get(_url, function( res ){
                 
                 res.setEncoding('utf8');
@@ -149,9 +152,7 @@ module.exports = {
                 pathname: path,
                 params: params,
                 headers: request.headers,
-                callback: function( result ){
-                    typeof callback==='function'&&callback.call( undefined, result );
-                }
+                callback: callback
             });
             
         }
@@ -198,10 +199,8 @@ module.exports = {
                 
             })
             
-            
         }
         
     }
-    
     
 }

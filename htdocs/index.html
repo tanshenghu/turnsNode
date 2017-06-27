@@ -13,7 +13,7 @@
     <form action="/node_demo.json" method="post" enctype="multipart/form-data" target="ifm"><input type="text" name="username" value="tsh"><input type="file" name="uploadfile"><input type="submit" value="上传"></form><iframe name="ifm" id="ifm" width="120" height="70"></iframe>
     <br>
     <textarea id="text"></textarea>
-    <br>
+    <section id="result"></section>
     <button id="a">get调自己接口</button>
     <button id="aa">post调自己接口</button>
     <hr>
@@ -24,8 +24,8 @@
             var $this = jQuery( this ),
                 type  = $this.attr('id').indexOf('aa')==0||$this.attr('id').indexOf('bb')==0 ? 'post' : 'get',
                 url   = $this.attr('id').indexOf('a')==0 ? '/getlist.json' : '/node_demo.json';
-            jQuery[type](url, {username:'TanShenghu',sex:'男',content:jQuery('#text').val()}, function( res ){
-                console.log( res )
+            jQuery[type](url, {username:'TanShenghu',sex:'man'}, function( res ){
+                result.innerHTML = JSON.stringify( res )
             })
         })
     </script>
