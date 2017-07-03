@@ -39,7 +39,7 @@ var take = function( options ){
     
     // 如果path中已经存在域名   那就用path中的域名, 也就是说path中的域名优先于配置文件中的转发域名
     if( _path.indexOf('http')===0 ){
-        let ouri = url.parse( _path );
+        var ouri = url.parse( _path );
            _Host = ouri.hostname;
            Port  = ouri.port||Port;
            _path = ouri.path;
