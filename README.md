@@ -64,7 +64,7 @@
 module.exports = function( app ){
     
     // 可以用这种方法来模拟前端开发时所用的 假数据
-    app.use('get', '/getlist.json', function( request, response, turnHost ){
+    app.use('get', '/getlist.json', function( request, response ){
         
         var result = {
             type: 'method GET',
@@ -79,9 +79,9 @@ module.exports = function( app ){
         
     })
     // 可以用这种方法走生产环境的接口 获取真实数据   放心ajax支持跨域
-    .use('post', '/nodeDataList.json', function( request, response, turnHost ){
+    .use('post', '/nodeDataList.json', function( request, response ){
         
-        turnHost.post('http://test.yjsvip.com/yjsWebService/hongbao/qiangHongbaoByActiveId', function( data ){
+        this.post('http://test.yjsvip.com/yjsWebService/hongbao/qiangHongbaoByActiveId', function( data ){
             
             response.send( data.content, {status:data.status, header:{"Content-Type":"application/json"}} );
             

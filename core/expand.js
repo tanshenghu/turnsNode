@@ -3,7 +3,8 @@
 */
 var log     = require( './log' ),
     url     = require( 'url' ),
-querystring = require( 'querystring' );
+querystring = require( 'querystring' ),
+turnHost    =   require( './turnhost' );
 
 module.exports = function( _OS ){
 
@@ -87,6 +88,16 @@ module.exports = function( _OS ){
                 })
 
             }
+            
+            // 转发方式调用   method:   create, update, delete, put等
+            request.get = function(){
+                turnHost.get.apply( this, [].splice.call(arguments,0) );
+            }
+            
+            request.post = function(){
+                turnHost.post.apply( this, [].splice.call(arguments,0) );
+            }
+            
 
         }
 

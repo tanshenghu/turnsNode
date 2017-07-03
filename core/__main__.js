@@ -8,7 +8,6 @@ path          =   require( 'path' ),
 url           =   require( 'url' ),
 output        =   require( './output' ),
 expand        =   require( './expand' ),
-turnHost      =   require( './turnhost' ),
 controllers   =   [],
 findCtlr      =   function( req, controllers ){
     
@@ -41,7 +40,7 @@ module.exports = function( app ){
         expand( {request:request, response:response} );
         
         var _IF = findCtlr( request, controllers );
-        _IF && typeof _IF.factory==='function' ? _IF.factory( request, response, turnHost ) : output( request, response );
+        _IF && typeof _IF.factory==='function' ? _IF.factory.call( request, request, response ) : output.call( request, request, response );
     
     })
     
