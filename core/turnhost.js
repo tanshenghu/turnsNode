@@ -34,20 +34,22 @@ var take = function( options ){
         Tid      = null,
         outCout  = 0,   // 输出次数
         params   = Buffer.isBuffer( options.params ) || typeof options.params==='string' ? options.params : querystring.stringify( options.params ),
-        _path    = options.pathname + ( options.type.toUpperCase()!=='POST'&&params!=='' ? options.pathname.indexOf('?')==-1 ? '?' + params : '&' + params : '' ),
+        _path    = options.pathname + ( options.type.toUpperCase()==='GET' ? options.pathname.indexOf('?')==-1 ? '?' + params : '&' + params : '' ),
         _Host    = url.parse( Host ).hostname;
     
     // 如果path中已经存在域名   那就用path中的域名, 也就是说path中的域名优先于配置文件中的转发域名
     if( _path.indexOf('http')===0 ){
-        var ouri = url.parse( _path );
-        _Host = ouri.hostname;
-        _path = ouri.path;
+        let ouri = url.parse( _path );
+           _Host = ouri.hostname;
+           Port  = ouri.port||Port;
+           _path = ouri.path;
     }
     
-    var _Headers = Object.assign( {"proxy-author":"TanShenghu"}, options.headers, {host: _Host+':'+Port} );
+    var _Headers = Object.assign( {"proxy-author":"TanShenghu"}, options.headers, {host: _Host+( !Port||Port==80?'':':'+Port )} );
     
     delete _Headers['accept-encoding'];
     delete _Headers['content-length'];
+    
     var requester   = _Host.indexOf('https')===0 ? https : http,
         turnOptions = {
         host: _Host,
@@ -56,7 +58,7 @@ var take = function( options ){
         path: _path,
         headers: _Headers,
     };
-    console.info( '数据转发参数: ' + JSON.stringify( Object.assign( turnOptions, {params: params} ) ) );
+    console.info( '\033[32m数据转发参数: \033[34m' + JSON.stringify( Object.assign( turnOptions, {params: params} ) ) );
     var req = requester.request(turnOptions, function( res ){
         clearTimeout( Tid );
         res.setEncoding('utf8');
@@ -112,7 +114,7 @@ module.exports = {
             var _url = _path.indexOf('http')==0 ? _path : Host+(Port?':'+Port:'')+_path;
             _url += JSON.stringify(params)==='{}' ? '' : ( url.parse( _url ).search ? '&' : '?' ) + querystring.stringify( params );
             var requester = Host.indexOf('https')===0||_url.indexOf('https')===0 ? https : http;
-            console.info( '数据转发参数: ' + _url );
+            console.info( '\033[32m数据转发参数: \033[34m' + _url );
             requester.get(_url, function( res ){
                 
                 res.setEncoding('utf8');
@@ -135,14 +137,14 @@ module.exports = {
     },
     get: function( path, params, callback, context ){
         
+        var request = this;
+        
         if( typeof params==='function' ){
             callback = params;
             params   = {};
         }
         
         if( Host.search(/http(?:s)?:\/\//)===0 ){
-            
-            var request   = context || arguments.callee.caller.arguments['0'];
             
             if( JSON.stringify(params)=='{}' ){
                 Object.assign( params, request.getRequest() );
@@ -160,6 +162,8 @@ module.exports = {
     },
     post: function( path, params, callback, context ){
         
+        var request = this;
+        
         if( typeof params==='function' ){
             context  = callback;
             callback = params;
@@ -167,8 +171,6 @@ module.exports = {
         }
         
         if( Host.search(/http(?:s)?:\/\//)===0 ){
-            
-            var request = context || arguments.callee.caller.arguments['0'];
             
             // 如果已经传了post参数就直接调用take方法，发请求
             if( params ){

@@ -7,7 +7,7 @@
 module.exports = function( app ){
     
     // get方式请求的接口
-    app.use('get', '/getlist.json', function( request, response, turnHost ){
+    app.use('get', '/getlist.json', function( request, response ){
         
         var result = {
             type: '您刚才用了GET请求接口',
@@ -23,7 +23,7 @@ module.exports = function( app ){
         
     })
     // 这里支持链式写法,   post请求
-    .use('post', '/getlist.json', function( request, response, turnHost ){
+    .use('post', '/getlist.json', function( request, response ){
         
         var result = {
             type: '您刚才用了POST请求接口',
@@ -55,7 +55,7 @@ module.exports = function( app ){
     
     
     
-    app.use('get', '/node_demo.json', function( request, response, turnHost ){
+    app.use('get', '/node_demo.json', function( request, response ){
         
         // 自己这块接口先获取参数信息，然后再传递给转发模块
         var params = request.getRequest();
@@ -63,7 +63,7 @@ module.exports = function( app ){
         //  get 方式转发除了get以外还有另外一种del方法与post很相似，唯一不同的地方就是我在get方法上做了处理，它是可以传报文的，而del则不会传报文
         
         // 调用 转发模块里面的 get方法
-        turnHost.get('/yjsWebService/index/getMyIndex', params, function( data ){
+        this.get('/yjsWebService/index/getMyIndex', params, function( data ){
             //   data.content真实数据内容(前端最关心的数据),   data.fileSize(真实数据大小字节),   data.status(状态码)   data.response(response对象)
             response.send( data.content );
             
@@ -72,26 +72,26 @@ module.exports = function( app ){
     })
     
     // 这里支持链式写法
-    .use('post', '/node_demo.json', function( request, response, turnHost ){
+    .use('post', '/node_demo.json', function( request, response ){
         /*
         //   先用formRequest获取post提交过来的参数，可以对参数进行修改之后然后再传给转发模块
         request.formRequest(function(body, size){
             
-            turnHost.post('/node.php', body, function( data ){
+            request.post('/node.php', body, function( data ){
                 
                 response.send( data.content );
                 
-            }, request );
+            });
             
         })
         */
        //   不传参数，直接转发，但是我在转发模块里面做了默认捞参数的处理，自动取前端post过来的所有参数自动去传发
-       turnHost.post('/yjsWebService/index/getMyIndex', function( data ){
+       this.post('/yjsWebService/index/getMyIndex', function( data ){
             
             // 可以通过第二个参数来设置响应头与状态码，我只是提供这个方法，不过一般默认就行了，不要去改它
             response.send( data.content, {status:data.status, header:{"Content-Type":"application/json"}} );
             
-        }, request );
+        });
         
     });
     
