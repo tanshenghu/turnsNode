@@ -1,6 +1,6 @@
 {
   "name": "turns-node",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "HTML development node service and support cross domain",
   "keywords": [
     "html",
