@@ -2,9 +2,13 @@
  *   log日志的读/写
 */
 var fs  = require( 'fs' ),
+f0      = function( val ){
+    val+='';
+    return val.length<2 ? '0'+val : val;
+},
 getDate = function( all ){
     var now = new Date();
-    return now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate() + ( all?' '+now.getHours()+':'+now.getMinutes()+':'+now.getSeconds():'' );
+    return now.getFullYear()+'-'+f0(now.getMonth()+1)+'-'+f0(now.getDate()) + ( all?' '+f0(now.getHours())+':'+f0(now.getMinutes())+':'+f0(now.getSeconds()):'' );
 },
 dir     = './logs/';
 
