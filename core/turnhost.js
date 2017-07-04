@@ -16,7 +16,7 @@ Host        = config.turnHost.replace(/\/?$/g,''),
 Port        = Host.indexOf('https')==0?443:80;
 
 //   域名与端口号的拆解
-Host = Host.replace(/:(\d+)$/g, function(a,b){
+Host = Host.replace(/:(\d+)/g, function(a,b){
     if( b ){
         Port = b;
         return '';
