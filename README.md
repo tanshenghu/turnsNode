@@ -85,7 +85,7 @@ module.exports = function( app ){
             
             response.send( data.content, {status:data.status, header:{"Content-Type":"application/json"}} );
             
-        }, request );
+        });
         
     });
     
