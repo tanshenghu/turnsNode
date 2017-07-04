@@ -58,7 +58,7 @@ var take = function( options ){
         path: _path,
         headers: _Headers,
     };
-    console.info( '\033[36m数据转发参数: \033[34m' + JSON.stringify( Object.assign( turnOptions, {params: params} ) ) );
+    console.info( '\033[36m数据转发参数: \033[37m' + JSON.stringify( Object.assign( turnOptions, {params: params} ) ) );
     var req = requester.request(turnOptions, function( res ){
         clearTimeout( Tid );
         res.setEncoding('utf8');
@@ -114,7 +114,7 @@ module.exports = {
             var _url = _path.indexOf('http')==0 ? _path : Host+(Port?':'+Port:'')+_path;
             _url += JSON.stringify(params)==='{}' ? '' : ( url.parse( _url ).search ? '&' : '?' ) + querystring.stringify( params );
             var requester = Host.indexOf('https')===0||_url.indexOf('https')===0 ? https : http;
-            console.info( '\033[36m数据转发参数: \033[34m' + _url );
+            console.info( '\033[36m数据转发参数: \033[37m' + _url );
             requester.get(_url, function( res ){
                 
                 res.setEncoding('utf8');
