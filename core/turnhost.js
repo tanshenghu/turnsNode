@@ -75,7 +75,7 @@ var take = function( options ){
     
     req.on('error', function( err ){
         clearTimeout( Tid );
-        outCout==0&&typeof options.callback==='function'&&options.callback( {content:"", fileSize:0, status:500, response:null} );
+        outCout==0&&typeof options.callback==='function'&&options.callback( {content:typeof err=='string'?err:err.toString(), fileSize:0, status:500, response:null} );
         outCout++;
         log.log( 'turnUri onerror: ' + err );
     })
@@ -86,7 +86,7 @@ var take = function( options ){
     //   一般情况响应就是5秒钟，在这里我多设置了500毫秒做为缓冲
     Tid = setTimeout(function(){
         req.abort();
-        outCout==0&&typeof options.callback==='function'&&options.callback( {content:"", fileSize:0, status:408, response:null} );
+        outCout==0&&typeof options.callback==='function'&&options.callback( {content:'{"success":false,"message":"timeout"}', fileSize:0, status:408, response:null} );
         outCout++;
         log.log( 'turnUri error: `' + _path + '` time out!' );
     }, config.turnTimeout*1000||5500);
