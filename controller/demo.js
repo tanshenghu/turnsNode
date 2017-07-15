@@ -9,9 +9,12 @@ module.exports = function( app ){
     // get方式请求的接口
     app.use('get', '/getlist.json', function( request, response ){
         
+        var users = this.db.select( 'user' );
+        
         var result = {
             type: '您刚才用了GET请求接口',
             success:true,
+            user: users,
             content:[
                 {username:"张三",sex:"男",phone:"12345"},
                 {username:"李四",sex:"男",phone:"24680"},

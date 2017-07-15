@@ -15,7 +15,8 @@ findCtlr      =   function( req, controllers ){
         return item.type===req.method && item.interface===url.parse( req.url ).pathname;
     });
     
-};
+},
+db            =   require( './db' );
 
 
 module.exports = function( app ){
@@ -27,11 +28,12 @@ module.exports = function( app ){
     
     controllerFiles.forEach(function( fileName ){
         
-        //if( path.parse(__filename).base!==fileName ){
         path.extname( fileName )==='.js' && require( '../controller/' + fileName )( app );
-        //}
         
     })
+    
+    // 数据库 操作设置方法
+    app.use('get', '/database.html', db.setDataBase);
     
     //  request 请求的监听
     app.on('request', function(request, response){

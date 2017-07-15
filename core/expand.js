@@ -4,7 +4,18 @@
 var log     = require( './log' ),
     url     = require( 'url' ),
 querystring = require( 'querystring' ),
-turnHost    =   require( './turnhost' );
+turnHost    = require( './turnhost' ),
+db          = require( './db' );
+
+var dbQuery = {
+    select : db.select,
+    count : db.count,
+    query : db.query,
+    where : db.where,
+    update : db.update,
+    delete : db.delete,
+    insert : db.insert
+}
 
 module.exports = function( _OS ){
 
@@ -98,7 +109,9 @@ module.exports = function( _OS ){
                 turnHost.post.apply( this, [].splice.call(arguments,0) );
             }
             
-
+            // db 操作
+            request.db = dbQuery;
+            
         }
 
     }
