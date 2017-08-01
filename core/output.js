@@ -2,8 +2,8 @@ var
 fs       = require( 'fs' ),
 path     = require( 'path' ),
 url      = require( 'url' ),
-config   = require( '../config/config' ),
-htdocs   = config.htdocs + '/',
+Config   = require( '../config/config' ),
+htdocs   = Config.htdocs + '/',
 fileType = require( './filetype' ),
 log      = require( './log' );
 
@@ -25,7 +25,7 @@ function GetFile( request, response ){
 GetFile.prototype.getUri = function( pathName ){
         
     var pathname = url.parse( this.request.url ).pathname; // url的pathname
-    var uriPath = htdocs + ( pathName || ( pathname==='/'||pathname==='' ? this.request.url+'/index'+config.VMExtName : pathname.replace( config.urlExtName, config.VMExtName ) ) );
+    var uriPath = htdocs + ( pathName || ( pathname==='/'||pathname==='' ? this.request.url+'/index'+Config.VMExtName : pathname.replace( Config.urlExtName, Config.VMExtName ) ) );
     return uriPath.replace(/\/+/g, '/');
     
 }
@@ -52,9 +52,9 @@ GetFile.prototype.readFile = function( pathname ){
             var _404Info = (pathname||uri).replace(htdocs.slice(0,-1),'');
             _this.output({
                 status: 404,
-                data: config.err404.replace( '{{errorMsg}}', _this.request.method+'=>"'+ _404Info+'"' )||'404 page',
+                data: Config.err404.replace( '{{errorMsg}}', _this.request.method+'=>"'+ _404Info+'"' )||'404 page',
                 header: {
-                    "Content-Type":fileType[ config.urlExtName ]
+                    "Content-Type":fileType[ Config.urlExtName ]
                 }
             });
             log.log( 'Not Find File '+_this.request.method+' To "'+ _404Info +'"' );
@@ -79,9 +79,9 @@ GetFile.prototype.getContent = function( uri ){
             
             _this.output({
                 status: 500,
-                data: config.err500.replace('{{errorMsg}}', typeof err!=="string"?JSON.stringify(err):err )||'500 page',
+                data: Config.err500.replace('{{errorMsg}}', typeof err!=="string"?JSON.stringify(err):err )||'500 page',
                 header: {
-                    "Content-Type":fileType[ config.urlExtName ]
+                    "Content-Type":fileType[ Config.urlExtName ]
                 }
             });
             log.log( '500 Error Read File '+_this.request.method+' To "'+uri+'"' );
@@ -92,7 +92,7 @@ GetFile.prototype.getContent = function( uri ){
             var findIncludeReg = new RegExp( '<%\\s*include\\(\\s*(["\'])\\s*'+ uri.replace(htdocs.slice(0,-1), '') +'\\s*\\1\\s*\\);?\\s*%>', 'gm' );
             
             // 对html文件进行include的检查处理
-            if( '.'+_this.getExtName()==config.urlExtName ){
+            if( '.'+_this.getExtName()==Config.urlExtName ){
                 
                 _this.fileContent =  _this.fileContent==='' ? data.toString('utf-8') : _this.fileContent.replace( findIncludeReg, data.toString('utf-8') );
                 
@@ -130,7 +130,7 @@ GetFile.prototype.getContent = function( uri ){
  */
 GetFile.prototype.getExtName = function(){
     var extName = path.extname( url.parse( this.request.url ).pathname );
-    extName = extName=='/'||extName=='' ? config.urlExtName : extName;
+    extName = extName=='/'||extName=='' ? Config.urlExtName : extName;
     return extName.slice( 1 );
 }
 
@@ -154,7 +154,7 @@ GetFile.prototype.getIncludePath = function( content ){
  */
 GetFile.prototype.output = function( result ){
     
-    var extName   = this.getExtName()||config.urlExtName.slice(1);
+    var extName   = this.getExtName()||Config.urlExtName.slice(1);
     result.header = Object.assign({
         "Content-Type":fileType[ extName ]||'text/plain',
         "Access-Control-Allow-Origin":"*",
@@ -164,7 +164,7 @@ GetFile.prototype.output = function( result ){
     }, result.header);
     
     this.response.writeHead(result.status, result.header);
-    // this.response.write( result.data, ( config.urlExtName + ',html,jsp,asp,aspx,shtml,php,xml,svg,text,txt,json,css,js,less,sass' ).indexOf(extName)>-1?'':'binary' );
+    // this.response.write( result.data, ( Config.urlExtName + ',html,jsp,asp,aspx,shtml,php,xml,svg,text,txt,json,css,js,less,sass' ).indexOf(extName)>-1?'':'binary' );
     this.response.write( result.data );
     this.response.end();
     

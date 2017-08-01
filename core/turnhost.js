@@ -10,9 +10,9 @@ http        = require( 'http' ),
 https       = require( 'https' ),
 url         = require( 'url' ),
 querystring = require( 'querystring' ),
-config      = require( '../config/config' ),
+Config      = require( '../config/config' ),
 log         = require( './log' ),
-Host        = config.turnHost.replace(/\/?$/g,''),
+Host        = Config.turnHost.replace(/\/?$/g,''),
 Port        = Host.indexOf('https')==0?443:80;
 
 //   域名与端口号的拆解
@@ -89,7 +89,7 @@ var take = function( options ){
         outCout==0&&typeof options.callback==='function'&&options.callback( {content:'{"success":false,"message":"timeout"}', fileSize:0, status:408, response:null} );
         outCout++;
         log.log( 'turnUri error: `' + _path + '` time out!' );
-    }, config.turnTimeout*1000||5500);
+    }, Config.turnTimeout*1000||5500);
     
 }
 module.exports = {

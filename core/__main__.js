@@ -33,7 +33,7 @@ module.exports = function( app ){
     })
     
     // 数据库 操作设置方法
-    app.use('get', '/database.html', db.setDataBase);
+    db.databaseRoute( app );
     
     //  request 请求的监听
     app.on('request', function(request, response){

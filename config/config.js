@@ -14,6 +14,7 @@ config = {
 
 getHtmlContent( 'err404' );
 getHtmlContent( 'err500' );
+getHtmlContent( 'dbpage' );
 
 module.exports   = config;
 

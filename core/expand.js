@@ -8,13 +8,14 @@ turnHost    = require( './turnhost' ),
 db          = require( './db' );
 
 var dbQuery = {
-    select : db.select,
-    count : db.count,
-    query : db.query,
-    where : db.where,
-    update : db.update,
-    delete : db.delete,
-    insert : db.insert
+    select    : db.select,
+    count     : db.count,
+    query     : db.query,
+    where     : db.where,
+    whereCount: db.whereCount,
+    update    : db.update,
+    delete    : db.delete,
+    insert    : db.insert
 }
 
 module.exports = function( _OS ){

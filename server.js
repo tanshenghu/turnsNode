@@ -8,10 +8,10 @@
 */
 var 
 http   = require( 'http' ),
-config = require( './config/config' ),
+Config = require( './config/config' ),
 app    = http.createServer()
-.listen( config.port );
+.listen( Config.port );
 
 require( './core/__main__' )( app );
 
-console.log( '\033[32mhttp服务 ---> \033[35mhttp://127.0.0.1:'+ config.port +'\033[32m, 已启动成功^_^' );
+console.log( '\033[32mhttp服务 ---> \033[35mhttp://127.0.0.1:'+ Config.port +'\033[32m, 已启动成功^_^' );
