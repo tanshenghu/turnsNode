@@ -12,7 +12,9 @@
     "url" : "https://github.com/tanshenghu/turnsNode.git"
   },
   "devDependencies": {},
-  "scripts": {},
+  "scripts": {
+    "start": "node server"
+  },
   "files": [
     "server.js"
   ],

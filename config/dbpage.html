@@ -8,17 +8,17 @@
     <meta name="Description" content="">
     <meta name="Author" content="TanShenghu">
     <title>微型数据库操作</title>
-    <style>*{margin:0;padding:0;}body{font:12px/1.5 tahoma,Microsoft YaHei,"\5FAE\8F6F\96C5\9ED1";color:#666;padding:20px;}dl{border:1px solid #ccc;padding:15px;margin-bottom:10px;}
+    <style>*{margin:0;padding:0;}body{font:12px/1.5 tahoma,Microsoft YaHei,"\5FAE\8F6F\96C5\9ED1";color:#666;padding:20px;}dl{border:1px solid #ccc;padding:15px;margin-bottom:10px;}#tableList .editor-box{min-height:30px;}
     #tableList dt{font-weight:bold;font-size:28px;color:#444;line-height:50px;text-indent:5px;text-shadow:1px 1px 1px orange;}#tableList th,#tableList td{padding:5px 3px;}#tableList thead label{color:green;padding-left:7px}#tableList .disabled{background-color:#ccc;}
-    #tableList .j-addField,#tableList .j-addLineData,#tableList .j-removeField,#tableList .j-saveLineData{border:1px solid #ccc;background:orange;color:white;border-radius:3px;height:32px;width:120px;margin-right:10px;}#tableList .handBtn-box{padding-top:15px;}</style>
+    #newTable{padding-bottom:15px;padding-left:5px;}button{cursor:pointer;}#tableList .j-addField,#tableList .j-addLineData,#tableList .j-removeField,#tableList .j-saveLineData,#tableList .j-removeTable,#newTable button{border:1px solid #ccc;background:orange;color:white;border-radius:3px;height:32px;width:120px;margin-right:10px;}#newTable button{background-color:green;}button:hover{opacity:.9;}#tableList .handBtn-box{padding-top:15px;}.editor-box [type="text"]{display:none}#tableList .edit [type="text"]{display:inline}#tableList .edit .value,#tableList .edit cite{display:none}</style>
 </head>
 <body>
-    <div>{{content}}</div>
+    <div class="test1">{{content}}</div>
     <script>
     !function(){
         
         var tableContainer = window.tableList;
-        var el = function( el ){return document.createElement(el)};
+        var el = function( el ){return document.createElement(el)}, hasClass = function( ele, cn ){return ele.className.indexOf(cn)>-1;}, closest = function( ele, cn ){if( ele.nodeName=='BODY' ){return {}}if( hasClass( ele, cn ) ){return ele};return closest( ele.parentNode, cn )};
         var toParams = function( o ){var p='';for(var i in o){p+='&'+i+'='+o[i]};return p.slice(1);};
         var getTable = function(){
             
@@ -27,22 +27,22 @@
                 var tblNameHtml = '';
                 res.data.forEach(function( v ){
                     var tn = (Object.keys( v )+'').replace(/,?fields,?/g, ''),
-                    fields = '<thead><tr>' + v.fields.map(function(f){return '<th field-name="'+f.name+'"><cite>'+f.name+'</cite><label>'+f.type+'</label></th>'}).join('') + '</tr></thead>',
+                    fields = '<thead><tr>' + v.fields.map(function(f){return '<th field-name="'+f.name+'"><section class="editor-box"><cite>'+f.name+'</cite><input type="text" value="'+f.name+'"><label>'+f.type+'</label></section></th>'}).join('') + '</tr></thead>',
                     tbody  = '';
                     
                     v[ tn ].forEach(function( vv, ii ){
                         
-                        tbody += '<tr class="exist">'+ v.fields.map(function(f){return '<td><div contenteditable="false" class="editor">'+ vv[f.name] +'</div></td>'}).join('') +'</tr>';
+                        tbody += '<tr class="exist">'+ v.fields.map(function(f){return '<td'+ ( f.name.search(/id/ig)>-1?' class="disabled"':'' ) +'><section class="editor-box"><div class="value">'+ vv[f.name] +'</div><input type="text" value="'+ vv[f.name] +'"></section></td>'}).join('') +'</tr>';
                         
-                    })
-                    tableContainer.innerHTML = tblNameHtml += '<dl><dt><div>'+ tn +'</div></dt><dd><table border="1" width="100%">'+ fields + tbody +'</table><div class="handBtn-box"><button class="j-addField">新增字段</button><button class="j-addLineData">新增数据</button><button class="j-removeField">删除字段</button></div></dd></dl>';
+                    });
+                    tbody = '<tbody>' + tbody + '</tbody>';
+                    tableContainer.innerHTML = tblNameHtml += '<dl><dt><div>'+ tn +'</div></dt><dd><table border="1" width="100%">'+ fields + tbody +'</table><div class="handBtn-box"><button class="j-addField">新增字段</button><button class="j-addLineData">新增数据</button><button class="j-removeField">删除字段</button><button class="j-removeTable">删数据表</button></div></dd></dl>';
                 })
                 tableContainer.innerHTML = tblNameHtml;
                 
             })
             
-        },
-        xhr = function( type, url, params, callback ){
+        },xhr = function( type, url, params, callback ){
             type = type.toUpperCase();
             var _body = null;
             if( type=='GET' ){
@@ -60,47 +60,55 @@
             .then(function( res ){
                 callback( res );
             })
-        },
-        handEvt = function(){
+        },handEvt = function(){
             
             var bindEvt = function( ev ){
                 
                 var target = ev.target,
-                clsName    = target.className,
-                tbody      = target.parentNode.previousSibling.querySelector('tbody');
-                if( clsName.indexOf('j-addField')>-1 ){ // 新增字段
+                tbody      = null;
+                if( hasClass( target, 'j-addField' ) ){ // 新增字段
                     
+                    tbody      = target.parentNode.previousSibling.querySelector('tbody');
                     addField.call( target, target, tbody, ev );
                     
-                }else if( clsName.indexOf('j-removeField')>-1 ){ // 删除某字段
+                }else if( hasClass( target, 'j-removeField' ) ){ // 删除某字段
                     
+                    tbody      = target.parentNode.previousSibling.querySelector('tbody');
                     removeField.call( target, target, tbody, ev );
                     
-                }else if( clsName.indexOf('j-addLineData')>-1 ){ // 新增行数据
+                }else if( hasClass( target, 'j-addLineData' ) ){ // 新增行数据
                     
+                    tbody      = target.parentNode.previousSibling.querySelector('tbody');
                     if( tbody.innerHTML.indexOf('newLine')>-1 ){
                         alert( '请先保存新增行后再添加!' );
                         return false;
                     }
                     addLineData.call( target, target, tbody, ev );
                     
-                }else if( clsName.indexOf('j-saveLineData')>-1 ){ // 保存行数据
+                }else if( hasClass( target, 'j-saveLineData' ) ){ // 保存行数据
                     
+                    tbody      = target.parentNode.previousSibling.querySelector('tbody');
                     saveLineData.call( target, target, tbody, ev );
+                    
+                }else if( hasClass( target, 'j-removeTable' ) ){ // 删除数据表
+                    
+                    tbody      = target.parentNode.previousSibling.querySelector('tbody');
+                    removeTable.call( target, target, tbody, ev );
                     
                 }
                 
             }
             tableContainer.addEventListener('click', bindEvt, false);
             
-            tableContainer.addEventListener('blur', saveFieldToData, false);
+            tableContainer.addEventListener('dblclick', function( ev ){var target=ev.target;if( !closest( target, 'disabled' ).nodeName ){closest( target, 'editor-box' ).className='editor-box edit'}}, false);
             
-        },
-        addField = function( target, tbody, ev ){
+            tableContainer.addEventListener('blur', saveFieldToData, true);
+            
+        },addField = function( target, tbody, ev ){
             var newFieldName = prompt( '请输入新增加字段名称' );
             if( newFieldName && newFieldName.trim() ){
                 
-                xhr('get', 'database_addField.json', {name: newFieldName}, function( res ){
+                xhr('post', 'database_addField.json', {name: newFieldName}, function( res ){
                     if( res.success ){
                         location.reload();
                     }else{
@@ -109,13 +117,14 @@
                 })
                 
             }
-        },
-        removeField = function( target, tbody, ev ){
+        },removeField = function( target, tbody, ev ){
             
-            var delFieldName = prompt( '请输入要删除的字段名称' );
+            var delFieldName = prompt( '请输入要删除的"字段名称"或者一行数据的"行ID"' );
             if( delFieldName && delFieldName.trim() && confirm('您确定要删除"'+ delFieldName.trim() +'"字段?') ){
                 
-                xhr('get', 'database_removeField.json', {name: delFieldName}, function( res ){
+                var params = {};
+                params[ isNaN( delFieldName ) ? 'name' : 'id' ] = delFieldName;
+                xhr('post', 'database_removeField.json', params, function( res ){
                     if( res.success ){
                         location.reload();
                     }else{
@@ -125,8 +134,7 @@
                 
             }
             
-        },
-        addLineData = function( target, tbody, ev ){
+        },addLineData = function( target, tbody, ev ){
             
             var newLine = el('tr');
             newLine.className = 'newLine';
@@ -136,8 +144,7 @@
             target.innerHTML = '保存数据';
             target.className = 'j-saveLineData';
             
-        },
-        saveLineData = function( target, tbody, ev ){
+        },saveLineData = function( target, tbody, ev ){
             
             var ths = tbody.previousSibling.querySelectorAll('th');
             
@@ -161,11 +168,39 @@
                 
             }
             
-        },
-        saveFieldToData = function( ev ){
+        },saveFieldToData = function( ev ){
             
-            if( ev.target.className=='editor' ){
-                alert(8888)
+            var ele = ev.target, fbox = ele.parentNode;
+            if( hasClass( fbox, 'editor-box' ) ){
+                
+                if( confirm('您确定要修改数据吗?') ){
+                    xhr('post', 'database_saveAloneData.json', {content: ele.value}, function( res ){
+                    
+                        if( res.success ){
+                            location.reload();
+                        }else{
+                            alert( res.message );
+                        }
+                        
+                    })
+                }
+                fbox.className = 'editor-box';
+                
+            }
+            
+        },removeTable = function( target, tbody, ev ){
+            
+            var tableName = target.parentNode.parentNode.previousSibling.firstChild.innerHTML;
+            if( confirm('您确定要删除数据表"'+ tableName +'"吗?') ){
+                xhr('post', 'database_removeTable.json', {tableName: tableName}, function( res ){
+                    
+                    if( res.success ){
+                        location.reload();
+                    }else{
+                        alert( res.message );
+                    }
+                    
+                })
             }
             
         }
@@ -174,6 +209,25 @@
         getTable();
         // 事件操作
         handEvt();
+        
+        document.querySelector('#newTable button').onclick = function(){
+            var newTableName = prompt( '请输入新建的数据表名称!' );
+            if( /^\w+$/g.test( newTableName ) ){
+                alert( '输入的格式不对!' );
+                return false;
+            }
+            if( confirm('您确定要新建"'+ newTableName +'"表吗?') ){
+                xhr('post', 'database_addNewTable.json', {tableName: newTableName}, function( res ){
+                
+                    if( res.success ){
+                        location.reload();
+                    }else{
+                        alert( res.message );
+                    }
+                    
+                })
+            }
+        }
         
     }()
     </script>

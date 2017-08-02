@@ -116,17 +116,53 @@ var setValidate = function( request, response ){
     response.send( Html( 'validate' ) );
 }
 
+var database_addField = function( request, response ){
+    
+}
+
+var database_saveLineData = function( request, response ){
+    
+}
+
+var database_saveAloneData = function( request, response ){
+    
+}
+
+var database_removeField = function( request, response ){
+    
+}
+
+var database_removeTable = function( request, response ){
+    
+}
+
+var database_addNewTable = function( request, response ){
+    
+}
+
 exports.databaseRoute = function( app ){
-    
+    // 首次进入
     app.use('get', '/database.html', setValidate);
-    
+    // 登入界面
     app.use('post', '/database.html', setDataBase);
-    
+    // 获取表数据
     app.use('get', '/database_getTableNames.json', function( request, response ){
         
         response.send( {success: true, data:getdb()} );
         
     });
+    // 保存新行数据
+    app.use('post', '/database_saveLineData.json', database_saveLineData);
+    // 保存单独的字段信息
+    app.use('post', '/database_saveAloneData.json', database_saveAloneData);
+    // 删除字段 或者 行数据
+    app.use('post', '/database_removeField.json', database_removeField);
+    // 新增一个字段
+    app.use('post', '/database_addField.json', database_addField);
+    // 删除某数据表
+    app.use('post', '/database_removeTable.json', database_removeTable);
+    // 新增一个数据表
+    app.use('post', '/database_addNewTable.json', database_addNewTable);
     
 }
 
@@ -141,7 +177,7 @@ var Html = function( type ){
         _body = '<h1>userName or passworld error</h1>';
         Page  = Page.replace(/\<script\>[\s\S]*?\<\/script\>/mg, '');
     }else if( type=='yes' ){
-        _body = '<div id="tableList"></div>';
+        _body = '<p id="newTable"><button>新建数据表</button></p><div id="tableList"></div>';
     }
     return Page.replace('{{content}}', _body);
 }
