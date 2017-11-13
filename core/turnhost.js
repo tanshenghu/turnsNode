@@ -13,6 +13,7 @@ querystring = require( 'querystring' ),
 Config      = require( '../config/config' ),
 log         = require( './log' ),
 Host        = Config.turnHost.replace(/\/?$/g,''),
+protocol    = Host.replace(/:.+/,''),
 Port        = Host.indexOf('https')==0?443:80;
 
 //   域名与端口号的拆解
@@ -37,12 +38,15 @@ var take = function( options ){
         _path    = options.pathname + ( options.type.toUpperCase()==='GET' ? options.pathname.indexOf('?')==-1 ? '?' + params : '&' + params : '' ),
         _Host    = url.parse( Host ).hostname;
     
+    _path = _path.replace(/\?$/,'');
+    
     // 如果path中已经存在域名   那就用path中的域名, 也就是说path中的域名优先于配置文件中的转发域名
     if( _path.indexOf('http')===0 ){
-        var ouri = url.parse( _path );
-           _Host = ouri.hostname;
-           Port  = ouri.port||Port;
-           _path = ouri.path;
+        var ouri    = url.parse( _path );
+           protocol = ouri.protocol.replace(':','');
+           _Host    = ouri.hostname;
+           Port     = ouri.port||(protocol==='https'?443:80)||Port;
+           _path    = ouri.path;
     }
     
     var _Headers = Object.assign( {"proxy-author":"TanShenghu"}, options.headers, {host: _Host+( !Port||Port==80?'':':'+Port )} );
@@ -50,7 +54,7 @@ var take = function( options ){
     delete _Headers['accept-encoding'];
     delete _Headers['content-length'];
     
-    var requester   = _Host.indexOf('https')===0 ? https : http,
+    var requester   = protocol.indexOf('https')===0 ? https : http,
         turnOptions = {
         host: _Host,
         port: Port,
