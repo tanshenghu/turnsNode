@@ -12,24 +12,36 @@ url         = require( 'url' ),
 querystring = require( 'querystring' ),
 Config      = require( '../config/config' ),
 log         = require( './log' ),
-Host        = Config.turnHost.replace(/\/?$/g,''),
-protocol    = Host.replace(/:.+/,''),
-Port        = Host.indexOf('https')==0?443:80;
+Host        = null,
+protocol    = null,
+Port        = null;
 
-//   域名与端口号的拆解
-Host = Host.replace(/:(\d+)/g, function(a,b){
-    if( b ){
-        Port = b;
-        return '';
-    }
-});
+reSetHost();
 
 if( Host.indexOf('http')===-1 ){
     log.log( 'turnUri error: `Host` http or https required!' );
+    throw 'turnUri error: `Host` http or https required!';
+}
+
+function reSetHost(){
+    Host     = Config.turnHost.replace(/\/?$/g,'');
+    protocol = Host.replace(/:.+/,'');
+    Port     = Host.indexOf('https')==0?443:80;
+
+    //   域名与端口号的拆解
+    Host = Host.replace(/:(\d+)/g, function(a,b){
+        if( b ){
+            Port = b;
+            return '';
+        }
+    });
 }
 
 // 数据请求报文转发
 var take = function( options ){
+    
+    reSetHost();
+    
     var content  = '',
         fileSize = 0,
         Tid      = null,
@@ -100,7 +112,7 @@ module.exports = {
     
     // getData 与 get唯一的区别就是del没有报文，而get是可以设置报文的建义还是用get
     getData: function( _path, params, callback ){
-        
+        reSetHost();
         if( typeof params==='function' ){
             callback = params;
             params   = {};
@@ -112,31 +124,27 @@ module.exports = {
         
         var content  = '',
             fileSize = 0;
-        
-        if( Host.search(/http(?:s)?:\/\//)===0 ){
             
-            var _url = _path.indexOf('http')==0 ? _path : Host+(Port?':'+Port:'')+_path;
-            _url += JSON.stringify(params)==='{}' ? '' : ( url.parse( _url ).search ? '&' : '?' ) + querystring.stringify( params );
-            var requester = Host.indexOf('https')===0||_url.indexOf('https')===0 ? https : http;
-            console.info( '\033[36m数据转发参数: \033[37m' + _url );
-            requester.get(_url, function( res ){
-                
-                res.setEncoding('utf8');
-                res.on('data', function( chunk ){
-                    content  += chunk;
-                    fileSize += chunk.length;
-                })
-                res.on('end', function(){
-                    typeof callback==='function' && callback( {content:content, fileSize:fileSize, response: res} );
-                })
-              
+        var _url = _path.indexOf('http')==0 ? _path : Host+(Port?':'+Port:'')+_path;
+        _url += JSON.stringify(params)==='{}' ? '' : ( url.parse( _url ).search ? '&' : '?' ) + querystring.stringify( params );
+        var requester = Host.indexOf('https')===0||_url.indexOf('https')===0 ? https : http;
+        console.info( '\033[36m数据转发参数: \033[37m' + _url );
+        requester.get(_url, function( res ){
+            
+            res.setEncoding('utf8');
+            res.on('data', function( chunk ){
+                content  += chunk;
+                fileSize += chunk.length;
             })
-            .on('error', function(){
-                log.log( 'turnUri error: ' + path );
-                typeof callback==='function' && callback();
-            });
+            res.on('end', function(){
+                typeof callback==='function' && callback( {content:content, fileSize:fileSize, response: res} );
+            })
           
-        }
+        })
+        .on('error', function(){
+            log.log( 'turnUri error: ' + path );
+            typeof callback==='function' && callback();
+        });
         
     },
     get: function( path, params, callback, context ){
@@ -148,20 +156,18 @@ module.exports = {
             params   = {};
         }
         
-        if( Host.search(/http(?:s)?:\/\//)===0 ){
             
-            if( JSON.stringify(params)=='{}' ){
-                Object.assign( params, request.getRequest() );
-            }
-            take({
-                type: 'GET',
-                pathname: path,
-                params: params,
-                headers: request.headers,
-                callback: callback
-            });
-            
+        if( JSON.stringify(params)=='{}' ){
+            Object.assign( params, request.getRequest() );
         }
+        take({
+            type: 'GET',
+            pathname: path,
+            params: params,
+            headers: request.headers,
+            callback: callback
+        });
+            
         
     },
     post: function( path, params, callback, context ){
@@ -174,38 +180,34 @@ module.exports = {
             params   = undefined;
         }
         
-        if( Host.search(/http(?:s)?:\/\//)===0 ){
+        // 如果已经传了post参数就直接调用take方法，发请求
+        if( params ){
             
-            // 如果已经传了post参数就直接调用take方法，发请求
-            if( params ){
-                
-                take({
-                    type: 'POST',
-                    pathname: path,
-                    params: params,
-                    headers: request.headers,
-                    callback: callback
-                });
-                
-                return;
-                
-            }
+            take({
+                type: 'POST',
+                pathname: path,
+                params: params,
+                headers: request.headers,
+                callback: callback
+            });
             
-            // 如果没有传post参数的话，会自动去取post中的参数，取完参数信息之后进入end方法再去调用take方法
-            
-            request.formRequest(function( bodyParams, size ){
-                
-                take({
-                    type: 'POST',
-                    pathname: path,
-                    params: bodyParams,
-                    headers: request.headers,
-                    callback: callback
-                });
-                
-            })
+            return;
             
         }
+        
+        // 如果没有传post参数的话，会自动去取post中的参数，取完参数信息之后进入end方法再去调用take方法
+        
+        request.formRequest(function( bodyParams, size ){
+            
+            take({
+                type: 'POST',
+                pathname: path,
+                params: bodyParams,
+                headers: request.headers,
+                callback: callback
+            });
+            
+        })
         
     }
     
